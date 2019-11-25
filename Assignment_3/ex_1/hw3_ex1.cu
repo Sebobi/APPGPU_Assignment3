@@ -284,7 +284,7 @@ void cpu_gaussian(int width, int height, float *image, float *image_out)
  */
 __global__ void gpu_gaussian(int width, int height, float *image, float *image_out)
 {
-	__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
+	//__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
 
 	float gaussian[9] = { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f,
 						  2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
@@ -300,8 +300,8 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		int offset_t = index_y * width + index_x;
 		int offset = (index_y + 1) * width + (index_x + 1);
 
-		sh_block[offset_t] = image[offset_t];
-		image_out[offset] = gpu_applyFilter(&sh_block[offset_t],
+		//sh_block[offset_t] = image[offset_t];
+		image_out[offset] = gpu_applyFilter(&image[offset_t],
 			width, gaussian, 3);
 	}
 }
@@ -348,7 +348,7 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 						-1.0f, -2.0f, -1.0f };
 
 
-	__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
+	//__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
 
 	int w = blockIdx.x * blockDim.x + threadIdx.x;
 	int h = blockIdx.y * blockDim.y + threadIdx.y;
