@@ -18,10 +18,11 @@ dim3 block(TILE_SIZE, TILE_SIZE);
 
 /* from cuda samples */
 void checkGpuError(cudaError_t result, char const *const func, const char *const file, int const line) {
-        if(result!=cudaSuccess) { \
-                fprintf(stderr, "Cuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(result));
-                exit(1);
-        }
+	if (result != cudaSuccess) {
+		\
+			fprintf(stderr, "Cuda failure %s:%d: '%s'\n", __FILE__, __LINE__, cudaGetErrorString(result));
+		exit(1);
+	}
 }
 
 // This will output the proper CUDA error strings in the event
@@ -116,7 +117,7 @@ void naive_sgemm(float *C, float *A, float *B, long size)
 {
 	struct timeval t0, t1;
 	gettimeofday(&t0, NULL);
-	naive_sgemm_kernel<<<grid, block>>>(C, A, B, size);
+	naive_sgemm_kernel << <grid, block >> > (C, A, B, size);
 	checkCudaErrors(cudaPeekAtLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
 	gettimeofday(&t1, NULL);
@@ -132,7 +133,13 @@ void shared_sgemm_kernel(float *C, float *A, float *B, long size)
 	const long row = blockIdx.y * blockDim.y + threadIdx.y;
 	float val = 0.0;
 
+
+
 	/* TODO declare shared memory with size TILE_SIZE x TILE_SIZE */
+	__shared__ float tile_A[blockDim.x][blockDim.y];
+	__shared__ float tile_B[blockDim.x][blockDim.x];
+
+
 
 	if (col < size && row < size) {
 		const long local_col = blockIdx.x * TILE_SIZE + threadIdx.x;
@@ -142,7 +149,7 @@ void shared_sgemm_kernel(float *C, float *A, float *B, long size)
 			tile_A[threadIdx.y][threadIdx.x] = A[local_row * size + (m * TILE_SIZE + threadIdx.x)];
 			tile_B[threadIdx.y][threadIdx.x] = B[(m * TILE_SIZE + threadIdx.y) * size + local_col];
 			__syncthreads();
-	
+
 			/* TODO introduce a pragma directive that can potentially improve performance here */
 			for (long k = 0; k < TILE_SIZE; ++k) {
 				/* TODO Perform multiplication here */
@@ -159,7 +166,7 @@ void shared_sgemm(float *C, float *A, float *B, long size)
 {
 	struct timeval t0, t1;
 	gettimeofday(&t0, NULL);
-	shared_sgemm_kernel<<<grid, block>>>(C, A, B, size);
+	shared_sgemm_kernel << <grid, block >> > (C, A, B, size);
 	checkCudaErrors(cudaPeekAtLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
 	gettimeofday(&t1, NULL);
@@ -179,7 +186,12 @@ void cublas_sgemm(float *C, float *A, float *B, long size)
 
 	gettimeofday(&t0, NULL);
 	/* TODO fill in the blanks, do C = BA instead of C = AB */
-	cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, , , , , , , , , , , );
+	const float *A_const = A;
+	const float *B_const = B;
+
+
+	cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, size, size, size,&alpha, B_const, size, A_const, size, &beta, C, size);
+	
 	checkCudaErrors(cudaDeviceSynchronize());
 	gettimeofday(&t1, NULL);
 	cublasDestroy(handle);
@@ -200,20 +212,20 @@ int main(int argc, char *argv[])
 
 	while ((opt = getopt(argc, argv, "s:v")) != -1) {
 		switch (opt) {
-			case 's':
-				size = atol(optarg);
-				if (size % TILE_SIZE != 0) {
-					fprintf(stderr, "Error: Matrix size must be a multiple of tile size %d.\n", TILE_SIZE);
-					exit(1);
-				}
-				break;
-			case 'v':
-				verify = true;
-				printf("Matrix size: %ldx%ld\n", size, size);
-				break;
-			default:
-				print_usage(argv[0]);
+		case 's':
+			size = atol(optarg);
+			if (size % TILE_SIZE != 0) {
+				fprintf(stderr, "Error: Matrix size must be a multiple of tile size %d.\n", TILE_SIZE);
 				exit(1);
+			}
+			break;
+		case 'v':
+			verify = true;
+			printf("Matrix size: %ldx%ld\n", size, size);
+			break;
+		default:
+			print_usage(argv[0]);
+			exit(1);
 		}
 	}
 
@@ -229,8 +241,8 @@ int main(int argc, char *argv[])
 	float *C_result = (float*)malloc(sizeof(float)*size*size);
 	float *C_truth = (float*)malloc(sizeof(float)*size*size);
 
-	float *d_A = NULL; 
-	float *d_B = NULL; 
+	float *d_A = NULL;
+	float *d_B = NULL;
 	float *d_C = NULL;
 
 	if (A == NULL || B == NULL || C_truth == NULL || C_result == NULL) {
