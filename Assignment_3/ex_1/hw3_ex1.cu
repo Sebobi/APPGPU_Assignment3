@@ -305,8 +305,6 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		int sh_block_offset = threadIdx.y*BLOCK_SIZE + threadIdx.x;
 
 		sh_block[sh_block_offset] = image[offset_t];
-		sh_block[sh_block_offset+1] = image[offset_t+1];
-		sh_block[sh_block_offset +2] = image[offset_t+2];
 
 		__syncthreads();
 		image_out[offset] = gpu_applyFilter(&sh_block[sh_block_offset],
