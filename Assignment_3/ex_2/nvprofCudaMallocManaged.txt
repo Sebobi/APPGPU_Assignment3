@@ -1,0 +1,29 @@
+==7064== NVPROF is profiling process 7064, command: exercise_2b.exe
+==7064== Profiling application: exercise_2b.exe
+==7064== Warning: 39 API trace records have same start and end timestamps.
+This can happen because of short execution duration of CUDA APIs and low timer resolution on the underlying operating system.
+==7064== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   99.22%  18.413ms      1000  18.413us  17.760us  19.521us  UPDATE_PARTICLES(Particle*, float, int)
+                    0.78%  144.68us         1  144.68us  144.68us  144.68us  [CUDA memcpy HtoD]
+      API calls:   46.95%  128.47ms         1  128.47ms  128.47ms  128.47ms  cudaMallocManaged
+                   23.34%  63.873ms      1001  63.809us  7.7750us  141.82us  cudaDeviceSynchronize
+                   15.66%  42.856ms      1000  42.856us  41.052us  78.374us  cudaLaunchKernel
+                   13.04%  35.678ms         1  35.678ms  35.678ms  35.678ms  cuDevicePrimaryCtxRelease
+                    0.62%  1.6863ms        97  17.384us       0ns  865.84us  cuDeviceGetAttribute
+                    0.17%  458.11us         1  458.11us  458.11us  458.11us  cudaFree
+                    0.13%  363.57us         1  363.57us  363.57us  363.57us  cudaMemcpy
+                    0.09%  236.36us         1  236.36us  236.36us  236.36us  cuModuleUnload
+                    0.00%  11.507us         1  11.507us  11.507us  11.507us  cuDeviceTotalMem
+                    0.00%  9.6410us         1  9.6410us  9.6410us  9.6410us  cuDeviceGetPCIBusId
+                    0.00%  1.5550us         3     518ns     311ns     622ns  cuDeviceGetCount
+                    0.00%     933ns         2     466ns     311ns     622ns  cuDeviceGet
+                    0.00%     933ns         1     933ns     933ns     933ns  cuDeviceGetName
+                    0.00%     311ns         1     311ns     311ns     311ns  cuDeviceGetUuid
+                    0.00%     311ns         1     311ns     311ns     311ns  cuDeviceGetLuid
+
+==7064== Unified Memory profiling result:
+Device "GeForce GTX 950 (0)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+     999  4.0000KB  4.0000KB  4.0000KB  3.902344MB  6.580864ms  Host To Device
+    1029  31.981KB  12.000KB  32.000KB  32.13672MB  140.9407ms  Device To Host

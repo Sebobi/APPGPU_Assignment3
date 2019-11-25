@@ -1,0 +1,22 @@
+==3056== NVPROF is profiling process 3056, command: exercise_2a.exe
+==3056== Profiling application: exercise_2a.exe
+==3056== Warning: 43 API trace records have same start and end timestamps.
+This can happen because of short execution duration of CUDA APIs and low timer resolution on the underlying operating system.
+==3056== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   56.77%  875.94ms      2002  437.53us  83.971us  859.31us  [CUDA memcpy HtoH]
+                   43.23%  667.00ms      1000  667.00us  662.25us  686.38us  UPDATE_PARTICLES(Particle*, float, int)
+      API calls:   84.58%  882.59ms      2002  440.86us  87.081us  865.53us  cudaMemcpy
+                   10.47%  109.24ms         1  109.24ms  109.24ms  109.24ms  cudaMallocHost
+                    3.39%  35.337ms         1  35.337ms  35.337ms  35.337ms  cuDevicePrimaryCtxRelease
+                    1.38%  14.430ms      1000  14.430us  13.062us  63.445us  cudaLaunchKernel
+                    0.16%  1.7121ms        97  17.650us       0ns  864.91us  cuDeviceGetAttribute
+                    0.02%  190.96us         1  190.96us  190.96us  190.96us  cuModuleUnload
+                    0.00%  10.264us         1  10.264us  10.264us  10.264us  cuDeviceTotalMem
+                    0.00%  9.9520us         1  9.9520us  9.9520us  9.9520us  cuDeviceGetPCIBusId
+                    0.00%  7.7760us         1  7.7760us  7.7760us  7.7760us  cudaFree
+                    0.00%  1.5550us         3     518ns     311ns     933ns  cuDeviceGetCount
+                    0.00%  1.2440us         2     622ns     311ns     933ns  cuDeviceGet
+                    0.00%  1.2440us         1  1.2440us  1.2440us  1.2440us  cuDeviceGetName
+                    0.00%     622ns         1     622ns     622ns     622ns  cuDeviceGetLuid
+                    0.00%     311ns         1     311ns     311ns     311ns  cuDeviceGetUuid
