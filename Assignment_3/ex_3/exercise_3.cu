@@ -136,8 +136,8 @@ void shared_sgemm_kernel(float *C, float *A, float *B, long size)
 
 
 	/* TODO declare shared memory with size TILE_SIZE x TILE_SIZE */
-	__shared__ float tile_A[blockDim.x][blockDim.y];
-	__shared__ float tile_B[blockDim.x][blockDim.x];
+	__shared__ float tile_A[TILE_SIZE][TILE_SIZE];
+	__shared__ float tile_B[TILE_SIZE][TILE_SIZE];
 
 
 
