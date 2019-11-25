@@ -226,7 +226,7 @@ float cpu_applyFilter(float *image, int stride, float *matrix, int filter_dim)
 /**
  * Applies a 3x3 convolution matrix to a pixel using the GPU.
  */
-__device__ float gpu_applyFilter(__shared__ float *image, int stride, float *matrix, int filter_dim)
+__device__ float gpu_applyFilter(float *image, int stride, float *matrix, int filter_dim)
 {
 	
 
