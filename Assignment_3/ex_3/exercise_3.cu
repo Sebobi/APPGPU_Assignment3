@@ -152,9 +152,9 @@ void shared_sgemm_kernel(float *C, float *A, float *B, long size)
 
 			int tileAX = threadIdx.y;
 			int tileBY = threadIdx.x;
-
+			
 			/* TODO introduce a pragma directive that can potentially improve performance here */
-#pragma unroll(TILE_SIZE)
+#pragma unroll(16)
 			for (long k = 0; k < TILE_SIZE; ++k) {
 
 

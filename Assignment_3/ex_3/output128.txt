@@ -1,0 +1,10 @@
+Matrix size: 128x128
+Matrix size: 128x128
+Grid size: 8x8
+Tile size: 16x16
+Run CPU sgemm: 1
+
+CPU matmul:			0.570000 ms
+GPU cuBLAS matmul:		0.209000 ms
+GPU matmul (global memory):	3.024000 ms
+GPU matmul (shared memory):	0.195000 ms
