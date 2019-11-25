@@ -411,7 +411,7 @@ int main(int argc, char **argv)
 	{
 		// Launch the CPU version
 		gettimeofday(&t[0], NULL);
-		cpu_grayscale(bitmap.width, bitmap.height, bitmap.data, image_out[0]);
+		//cpu_grayscale(bitmap.width, bitmap.height, bitmap.data, image_out[0]);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[0] = get_elapsed(t[0], t[1]);
@@ -435,7 +435,7 @@ int main(int argc, char **argv)
 	{
 		// Launch the CPU version
 		gettimeofday(&t[0], NULL);
-		cpu_gaussian(bitmap.width, bitmap.height, image_out[0], image_out[1]);
+		//cpu_gaussian(bitmap.width, bitmap.height, image_out[0], image_out[1]);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[0] = get_elapsed(t[0], t[1]);
@@ -459,7 +459,7 @@ int main(int argc, char **argv)
 	{
 		// Launch the CPU version
 		gettimeofday(&t[0], NULL);
-		cpu_sobel(bitmap.width, bitmap.height, image_out[1], image_out[0]);
+		//cpu_sobel(bitmap.width, bitmap.height, image_out[1], image_out[0]);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[0] = get_elapsed(t[0], t[1]);
