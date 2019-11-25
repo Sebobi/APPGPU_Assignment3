@@ -150,11 +150,15 @@ void shared_sgemm_kernel(float *C, float *A, float *B, long size)
 			tile_B[threadIdx.y][threadIdx.x] = B[(m * TILE_SIZE + threadIdx.y) * size + local_col];
 			__syncthreads();
 
+			int tileAX = threadIdx.y;
+			int tileBY = threadIdx.x;
+
 			/* TODO introduce a pragma directive that can potentially improve performance here */
+#pragma unroll(TILE_SIZE)
 			for (long k = 0; k < TILE_SIZE; ++k) {
 
 
-				val += tile_A[threadIdx.y][k] * tile_B[k][threadIdx.x];
+				val += tile_A[tileAX][k] * tile_B[k][tileBY];
 
 				/* TODO Perform multiplication here */
 			}
@@ -192,10 +196,8 @@ void cublas_sgemm(float *C, float *A, float *B, long size)
 	/* TODO fill in the blanks, do C = BA instead of C = AB */
 	const float *A_const = A;
 	const float *B_const = B;
+	cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, size, size, size, &alpha, B_const, size, A_const, size, &beta, C, size);
 
-
-	cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, size, size, size,&alpha, B_const, size, A_const, size, &beta, C, size);
-	
 	checkCudaErrors(cudaDeviceSynchronize());
 	gettimeofday(&t1, NULL);
 	cublasDestroy(handle);
@@ -289,13 +291,13 @@ int main(int argc, char *argv[])
 	naive_sgemm(d_C, d_A, d_B, size);
 	checkCudaErrors(cudaMemcpy(C_result, d_C, sizeof(float)*size*size, cudaMemcpyDeviceToHost));
 	compare_matrix(C_result, C_truth, size, THRESHOLD);
-	
+
 	// run shared
 	checkCudaErrors(cudaMemset(d_C, 0, sizeof(float)*size*size));
 	shared_sgemm(d_C, d_A, d_B, size);
 	checkCudaErrors(cudaMemcpy(C_result, d_C, sizeof(float)*size*size, cudaMemcpyDeviceToHost));
 	compare_matrix(C_result, C_truth, size, THRESHOLD);
-	
+
 
 	/* free */
 	checkCudaErrors(cudaFree(d_A));
