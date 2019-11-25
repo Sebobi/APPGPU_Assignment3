@@ -250,7 +250,6 @@ __device__ float gpu_applyFilter(float *image, int stride, float *matrix, int fi
 	// Does it make sense to have a separate gpu_applyFilter()? //
 	//////////////////////////////////////////////////////////////
 
-	return 0.0f;
 }
 
 
@@ -333,11 +332,29 @@ void cpu_sobel(int width, int height, float *image, float *image_out)
  */
 __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 {
-	////////////////
-	// TO-DO #6.1 /////////////////////////////////////
-	// Implement the GPU version of the Sobel filter //
-	///////////////////////////////////////////////////
+	float sobel_x[9] = { 1.0f,  0.0f, -1.0f,
+					 2.0f,  0.0f, -2.0f,
+					 1.0f,  0.0f, -1.0f };
+	float sobel_y[9] = { 1.0f,  2.0f,  1.0f,
+						 0.0f,  0.0f,  0.0f,
+						-1.0f, -2.0f, -1.0f };
+
+	int w = blockIdx.x * blockDim.x + threadIdx.x;
+	int h = blockIdx.y * blockDim.y + threadIdx.y;
+
+	if (w < (width - 2) && h < (height - 2) {
+
+		int offset_t = h * width;
+			int offset = (h + 1) * width;
+
+
+			float gx = cpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
+			float gy = cpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
+			image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
+	}
 }
+
+
 
 int main(int argc, char **argv)
 {
