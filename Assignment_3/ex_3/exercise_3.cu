@@ -288,13 +288,13 @@ int main(int argc, char *argv[])
 	naive_sgemm(d_C, d_A, d_B, size);
 	checkCudaErrors(cudaMemcpy(C_result, d_C, sizeof(float)*size*size, cudaMemcpyDeviceToHost));
 	compare_matrix(C_result, C_truth, size, THRESHOLD);
-	/*
+	
 	// run shared
 	checkCudaErrors(cudaMemset(d_C, 0, sizeof(float)*size*size));
 	shared_sgemm(d_C, d_A, d_B, size);
 	checkCudaErrors(cudaMemcpy(C_result, d_C, sizeof(float)*size*size, cudaMemcpyDeviceToHost));
 	compare_matrix(C_result, C_truth, size, THRESHOLD);
-	*/
+	
 
 	/* free */
 	checkCudaErrors(cudaFree(d_A));
