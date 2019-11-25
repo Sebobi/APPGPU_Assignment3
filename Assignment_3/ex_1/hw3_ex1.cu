@@ -313,8 +313,11 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 	__syncthreads();
 
 	if (index_x < (width - 2) && index_y < (height - 2)) {
-		image_out[offset] = gpu_applyFilter(&sh_block[sh_block_offset],
+		image_out[offset] = gpu_applyFilter(&image[offset_t],
 			width, gaussian, 3);
+
+		//image_out[offset] = gpu_applyFilter(&sh_block[sh_block_offset],
+		//	width, gaussian, 3);
 	}
 }
 
