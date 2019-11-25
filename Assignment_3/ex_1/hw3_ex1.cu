@@ -227,6 +227,22 @@ float cpu_applyFilter(float *image, int stride, float *matrix, int filter_dim)
  */
 __device__ float gpu_applyFilter(float *image, int stride, float *matrix, int filter_dim)
 {
+	float pixel = 0.0f;
+
+	for (int h = 0; h < filter_dim; h++)
+	{
+		int offset = h * stride;
+		int offset_kernel = h * filter_dim;
+
+		for (int w = 0; w < filter_dim; w++)
+		{
+			pixel += image[offset + w] * matrix[offset_kernel + w];
+		}
+	}
+
+	return pixel;
+
+
 	////////////////
 	// TO-DO #5.2 ////////////////////////////////////////////////
 	// Implement the GPU version of cpu_applyFilter()           //
@@ -236,6 +252,8 @@ __device__ float gpu_applyFilter(float *image, int stride, float *matrix, int fi
 
 	return 0.0f;
 }
+
+
 
 /**
  * Applies a Gaussian 3x3 filter to a given image using the CPU.
@@ -372,11 +390,11 @@ int main(int argc, char **argv)
 
 		// Launch the GPU version
 		gettimeofday(&t[0], NULL);
-		gpu_grayscale<<<grid, block>>>(bitmap.width, bitmap.height,
-	                                d_bitmap, d_image_out[0]);
+		gpu_grayscale << <grid, block >> > (bitmap.width, bitmap.height,
+			d_bitmap, d_image_out[0]);
 
 		cudaMemcpy(image_out[0], d_image_out[0],
-		            image_size * sizeof(float), cudaMemcpyDeviceToHost);
+			image_size * sizeof(float), cudaMemcpyDeviceToHost);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[1] = get_elapsed(t[0], t[1]);
@@ -396,11 +414,11 @@ int main(int argc, char **argv)
 
 		// Launch the GPU version
 		gettimeofday(&t[0], NULL);
-		// gpu_gaussian<<<grid, block>>>(bitmap.width, bitmap.height,
-		//                               d_image_out[0], d_image_out[1]);
+		 gpu_gaussian<<<grid, block>>>(bitmap.width, bitmap.height,
+		                              d_image_out[0], d_image_out[1]);
 
-		// cudaMemcpy(image_out[1], d_image_out[1],
-		//            image_size * sizeof(float), cudaMemcpyDeviceToHost);
+		 cudaMemcpy(image_out[1], d_image_out[1],
+		           image_size * sizeof(float), cudaMemcpyDeviceToHost);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[1] = get_elapsed(t[0], t[1]);
