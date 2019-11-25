@@ -307,7 +307,8 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 	{
 
 		sh_block[sh_block_offset] = image[offset_t];
-
+		sh_block[sh_block_offset+1] = image[offset_t+1];
+		sh_block[sh_block_offset + 2] = image[offset_t + 2];
 	}
 
 	__syncthreads();
