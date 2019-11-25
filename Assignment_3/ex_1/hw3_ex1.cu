@@ -342,14 +342,14 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 	int w = blockIdx.x * blockDim.x + threadIdx.x;
 	int h = blockIdx.y * blockDim.y + threadIdx.y;
 
-	if (w < (width - 2) && h < (height - 2) {
+	if (w < (width - 2) && h < (height - 2)) {
 
 		int offset_t = h * width;
 			int offset = (h + 1) * width;
 
 
-			float gx = cpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
-			float gy = cpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
+			float gx = gpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
+			float gy = gpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
 			image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
 	}
 }
@@ -455,11 +455,11 @@ int main(int argc, char **argv)
 
 		// Launch the GPU version
 		gettimeofday(&t[0], NULL);
-		// gpu_sobel<<<grid, block>>>(bitmap.width, bitmap.height,
-		//                            d_image_out[1], d_image_out[0]);
+		gpu_sobel<<<grid, block>>>(bitmap.width, bitmap.height,
+		                            d_image_out[1], d_image_out[0]);
 
-		// cudaMemcpy(image_out[0], d_image_out[0],
-		//            image_size * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(image_out[0], d_image_out[0],
+		            image_size * sizeof(float), cudaMemcpyDeviceToHost);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[1] = get_elapsed(t[0], t[1]);
