@@ -372,11 +372,11 @@ int main(int argc, char **argv)
 
 		// Launch the GPU version
 		gettimeofday(&t[0], NULL);
-		// gpu_grayscale<<<grid, block>>>(bitmap.width, bitmap.height,
-		//                                d_bitmap, d_image_out[0]);
+		gpu_grayscale<<<grid, block>>>(bitmap.width, bitmap.height,
+	                                d_bitmap, d_image_out[0]);
 
-		// cudaMemcpy(image_out[0], d_image_out[0],
-		//            image_size * sizeof(float), cudaMemcpyDeviceToHost);
+		cudaMemcpy(image_out[0], d_image_out[0],
+		            image_size * sizeof(float), cudaMemcpyDeviceToHost);
 		gettimeofday(&t[1], NULL);
 
 		elapsed[1] = get_elapsed(t[0], t[1]);
