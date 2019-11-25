@@ -301,8 +301,8 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		int offset = (index_y + 1) * width + (index_x + 1);
 
 		sh_block[offset_t] = image[offset_t];
-		__syncthreads();
-		image_out[offset] = gpu_applyFilter(&sh_block[offset_t],
+
+		image_out[offset] = gpu_applyFilter(&image[offset_t],
 			width, gaussian, 3);
 	}
 }
@@ -356,13 +356,12 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 
 	if (w < (width - 2) && h < (height - 2)) {
 
-		int offset_t = h * width + w;
-		int offset = (h + 1) * width + w;
+		int offset_t = h * width;
+		int offset = (h + 1) * width;
 
 
-
-		float gx = gpu_applyFilter(&image[offset_t], width, sobel_x, 3);
-		float gy = gpu_applyFilter(&image[offset_t], width, sobel_y, 3);
+		float gx = gpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
+		float gy = gpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
 		image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
 	}
 }
