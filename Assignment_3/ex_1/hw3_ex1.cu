@@ -356,16 +356,13 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 
 	if (w < (width - 2) && h < (height - 2)) {
 
-		int offset_t = h * width;
-		int offset = (h + 1) * width;
-
-		sh_block[offset_t] = image[offset_t];
-		__syncthreads();
+		int offset_t = h * width + w;
+		int offset = (h + 1) * width + w;
 
 
 
-		float gx = gpu_applyFilter(&sh_block[offset_t + w], width, sobel_x, 3);
-		float gy = gpu_applyFilter(&sh_block[offset_t + w], width, sobel_y, 3);
+		float gx = gpu_applyFilter(&image[offset_t], width, sobel_x, 3);
+		float gy = gpu_applyFilter(&image[offset_t], width, sobel_y, 3);
 		image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
 	}
 }
