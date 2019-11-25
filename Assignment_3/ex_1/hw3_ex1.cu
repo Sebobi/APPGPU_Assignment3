@@ -302,30 +302,47 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 
 	int sh_block_offset = threadIdx.y * BLOCK_SIZE_SH + threadIdx.x;
 
-
+	bool inBounds = false;
 	if (index_x < (width - 2) && index_y < (height - 2))
 	{
 		sh_block[sh_block_offset] = image[offset_t];
-		sh_block[sh_block_offset+1] = image[offset_t+1];
-		sh_block[sh_block_offset + 2] = image[offset_t + 2];
-		sh_block[sh_block_offset + BLOCK_SIZE_SH] = image[offset_t + width];
-		sh_block[sh_block_offset + BLOCK_SIZE_SH+1] = image[offset_t + width+1];
-		sh_block[sh_block_offset + BLOCK_SIZE_SH + 2] = image[offset_t + width + 2];
-		sh_block[sh_block_offset + 2*BLOCK_SIZE_SH] = image[offset_t + 2 * width];
-		sh_block[sh_block_offset + 2*BLOCK_SIZE_SH +1] = image[offset_t + 2 * width+1];
-		sh_block[sh_block_offset + 2*BLOCK_SIZE_SH+2] = image[offset_t + 2 * width+2];
+		inBounds = true;
 	}
 
 	__syncthreads();
 
+	if (inBounds) {
+		
+		if (threadIdx.x == blockDim.x - 1) {
+			//Add right pixels
+			sh_block[sh_block_offset + 1] = image[offset_t + 1];
+			sh_block[sh_block_offset + 2] = image[offset_t + 2];
+		}
+		if (threadIdx.y == blockDim.y - 1) {
+			//Add top pixels
+			sh_block[sh_block_offset + BLOCK_SIZE_SH] = image[offset_t + width];
+			sh_block[sh_block_offset + 2 * BLOCK_SIZE_SH] = image[offset_t + 2 * width];
+		}
+		if (threadIdx.x == blockDim.x - 1 && threadIdx.y == blockDim.y - 1) {
+
+			sh_block[sh_block_offset + BLOCK_SIZE_SH + 1] = image[offset_t + width + 1];
+			sh_block[sh_block_offset + BLOCK_SIZE_SH + 2] = image[offset_t + width + 2];
+			sh_block[sh_block_offset + 2 * BLOCK_SIZE_SH + 1] = image[offset_t + 2 * width + 1];
+			sh_block[sh_block_offset + 2 * BLOCK_SIZE_SH + 2] = image[offset_t + 2 * width + 2];
+		}
+
+	}
+	__syncthreads();
 
 
-	if (index_x < (width - 2) && index_y < (height - 2)) {
-		//image_out[offset] = gpu_applyFilter(&image[offset_t],
-		//	width, gaussian, 3);
+	if (inBounds) {
 
 		image_out[offset] = gpu_applyFilter(&sh_block[sh_block_offset],
 			BLOCK_SIZE_SH, gaussian, 3);
+
+		//Old no shared memory
+		//image_out[offset] = gpu_applyFilter(&image[offset_t],
+		//	width, gaussian, 3);
 	}
 }
 
@@ -382,9 +399,16 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 		int offset = (h + 1) * width;
 
 
+
+
+
+		//Old
+		
 		float gx = gpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
 		float gy = gpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
 		image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
+
+		
 	}
 }
 
