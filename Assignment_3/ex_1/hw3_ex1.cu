@@ -290,7 +290,9 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 						  2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
 						  1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f };
 
+	//width index
 	int index_x = blockIdx.x * blockDim.x + threadIdx.x;
+	//height index
 	int index_y = blockIdx.y * blockDim.y + threadIdx.y;
 
 	if (index_x < (width - 2) && index_y < (height - 2))
@@ -300,12 +302,14 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		int offset_t = index_y * width + index_x;
 		int offset = (index_y + 1) * width + (index_x + 1);
 
-		sh_block[offset_t] = image[offset_t];
-		sh_block[offset_t + 1] = image[offset_t+1];
-		sh_block[offset_t + 2] = image[offset_t+2];
+		int sh_block_offset = threadIdx.y*BLOCK_SIZE + threadIdx.x;
+
+		sh_block[sh_block_offset] = image[offset_t];
+		sh_block[sh_block_offset+1] = image[offset_t+1];
+		sh_block[sh_block_offset +2] = image[offset_t+2];
 
 		__syncthreads();
-		image_out[offset] = gpu_applyFilter(&sh_block[offset_t],
+		image_out[offset] = gpu_applyFilter(&sh_block[sh_block_offset],
 			width, gaussian, 3);
 	}
 }
