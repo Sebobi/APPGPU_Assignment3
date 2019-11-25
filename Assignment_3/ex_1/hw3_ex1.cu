@@ -300,7 +300,7 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 	int offset_t = index_y * width + index_x;
 	int offset = (index_y + 1) * width + (index_x + 1);
 
-	int sh_block_offset = threadIdx.y * blockDim.x + threadIdx.x;
+	int sh_block_offset = threadIdx.y * BLOCK_SIZE_SH + threadIdx.x;
 
 
 	if (index_x < (width - 2) && index_y < (height - 2))
