@@ -301,8 +301,7 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		int offset = (index_y + 1) * width + (index_x + 1);
 
 		sh_block[offset_t] = image[offset_t];
-
-		image_out[offset] = gpu_applyFilter(&image[offset_t],
+		image_out[offset] = gpu_applyFilter(&sh_block[offset_t],
 			width, gaussian, 3);
 	}
 }
