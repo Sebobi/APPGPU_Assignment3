@@ -152,6 +152,9 @@ void shared_sgemm_kernel(float *C, float *A, float *B, long size)
 
 			/* TODO introduce a pragma directive that can potentially improve performance here */
 			for (long k = 0; k < TILE_SIZE; ++k) {
+
+				val += tile_A[row][k] * tile_B[k][col];
+
 				/* TODO Perform multiplication here */
 			}
 			__syncthreads();
