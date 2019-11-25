@@ -388,28 +388,41 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 						-1.0f, -2.0f, -1.0f };
 
 
-	//__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
+	__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
 
 	int w = blockIdx.x * blockDim.x + threadIdx.x;
 	int h = blockIdx.y * blockDim.y + threadIdx.y;
 
+
+	int offset_t = h * width + w;
+	int offset = (h + 1) * width + w + 1;
+
+	int sh_block_offset = threadIdx.y * BLOCK_SIZE_SH + threadIdx.x;
+	bool inBounds = false;
+
 	if (w < (width - 2) && h < (height - 2)) {
-
-		int offset_t = h * width;
-		int offset = (h + 1) * width;
-
-
-
-
-
-		//Old
-		
-		float gx = gpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
-		float gy = gpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
-		image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
-
-		
+		sh_block[sh_block_offset] = image[offset_t];
+		inBounds = true;
 	}
+
+	__syncthreads();
+
+	if (inBounds) {
+		float gx = gpu_applyFilter(&sh_block[sh_block_offset],
+			BLOCK_SIZE_SH, sobel_x, 3);
+		float gy = gpu_applyFilter(&sh_block[sh_block_offset],
+			BLOCK_SIZE_SH, sobel_y, 3);
+		image_out[offset] = sqrtf(gx * gx + gy * gy);
+	}
+
+
+
+	//Old
+	/*
+	float gx = gpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
+	float gy = gpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
+	image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
+	*/
 }
 
 
