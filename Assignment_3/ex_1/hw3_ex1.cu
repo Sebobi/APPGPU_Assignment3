@@ -308,12 +308,12 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		sh_block[sh_block_offset] = image[offset_t];
 		sh_block[sh_block_offset+1] = image[offset_t+1];
 		sh_block[sh_block_offset + 2] = image[offset_t + 2];
-		sh_block[sh_block_offset + blockDim.x] = image[offset_t + width];
-		sh_block[sh_block_offset + blockDim.x+1] = image[offset_t + width+1];
-		sh_block[sh_block_offset + blockDim.x + 2] = image[offset_t + width + 2];
-		sh_block[sh_block_offset + 2 * blockDim.x] = image[offset_t + 2 * width];
-		sh_block[sh_block_offset + 2 * blockDim.x +1] = image[offset_t + 2 * width+1];
-		sh_block[sh_block_offset + 2 * blockDim.x+2] = image[offset_t + 2 * width+2];
+		sh_block[sh_block_offset + BLOCK_SIZE_SH] = image[offset_t + width];
+		sh_block[sh_block_offset + BLOCK_SIZE_SH+1] = image[offset_t + width+1];
+		sh_block[sh_block_offset + BLOCK_SIZE_SH + 2] = image[offset_t + width + 2];
+		sh_block[sh_block_offset + 2*BLOCK_SIZE_SH] = image[offset_t + 2 * width];
+		sh_block[sh_block_offset + 2*BLOCK_SIZE_SH +1] = image[offset_t + 2 * width+1];
+		sh_block[sh_block_offset + 2*BLOCK_SIZE_SH+2] = image[offset_t + 2 * width+2];
 	}
 
 	__syncthreads();
@@ -325,7 +325,7 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 		//	width, gaussian, 3);
 
 		image_out[offset] = gpu_applyFilter(&sh_block[sh_block_offset],
-			blockDim.x, gaussian, 3);
+			BLOCK_SIZE_SH, gaussian, 3);
 	}
 }
 
