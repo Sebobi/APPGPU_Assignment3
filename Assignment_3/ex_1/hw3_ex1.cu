@@ -228,7 +228,7 @@ float cpu_applyFilter(float *image, int stride, float *matrix, int filter_dim)
  */
 __device__ float gpu_applyFilter(float *image, int stride, float *matrix, int filter_dim)
 {
-	
+
 
 	float pixel = 0.0f;
 
@@ -285,7 +285,7 @@ void cpu_gaussian(int width, int height, float *image, float *image_out)
 __global__ void gpu_gaussian(int width, int height, float *image, float *image_out)
 {
 	__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
-	
+
 	float gaussian[9] = { 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f,
 						  2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
 						  1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f };
@@ -295,7 +295,7 @@ __global__ void gpu_gaussian(int width, int height, float *image, float *image_o
 
 	if (index_x < (width - 2) && index_y < (height - 2))
 	{
-		
+
 
 		int offset_t = index_y * width + index_x;
 		int offset = (index_y + 1) * width + (index_x + 1);
@@ -348,6 +348,9 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 						 0.0f,  0.0f,  0.0f,
 						-1.0f, -2.0f, -1.0f };
 
+
+	__shared__ float sh_block[BLOCK_SIZE_SH * BLOCK_SIZE_SH];
+
 	int w = blockIdx.x * blockDim.x + threadIdx.x;
 	int h = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -356,9 +359,13 @@ __global__ void gpu_sobel(int width, int height, float *image, float *image_out)
 		int offset_t = h * width;
 		int offset = (h + 1) * width;
 
+		sh_block[offset_t] = image[offset_t];
+		__syncthreads();
 
-		float gx = gpu_applyFilter(&image[offset_t + w], width, sobel_x, 3);
-		float gy = gpu_applyFilter(&image[offset_t + w], width, sobel_y, 3);
+
+
+		float gx = gpu_applyFilter(&sh_block[offset_t + w], width, sobel_x, 3);
+		float gy = gpu_applyFilter(&sh_block[offset_t + w], width, sobel_y, 3);
 		image_out[offset + (w + 1)] = sqrtf(gx * gx + gy * gy);
 	}
 }
