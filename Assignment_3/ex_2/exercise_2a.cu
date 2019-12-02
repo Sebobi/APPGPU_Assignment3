@@ -39,19 +39,18 @@ int main()
 
 	const int BLOCKS = (NUM_PARTICLES + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-	Particle particles[NUM_PARTICLES] = {};
+	Particle *particles;
 
+	Particle *particles_GPU = 0;
 
 	const float randomVelocity = rand();
-	float d2 = rand();
 
-	printf("%d\n", fabs(0.2) < fabs(0.5) ? 1 : 0);
-
+	cudaError_t cudaStatus;
+	cudaStatus = cudaMalloc((void**)&particles_GPU, NUM_PARTICLES * sizeof(Particle));
+	cudaStatus = cudaMallocHost((void**)&particles, NUM_PARTICLES * sizeof(Particle));
 
 	initializeParticles(particles, NUM_PARTICLES);
 
-	Particle *particles_GPU = 0;
-	cudaError_t cudaStatus;
 
 	printf("Starting GPU particle simulation now\n");
 
@@ -61,9 +60,6 @@ int main()
 	double gpu_before = duration_in_seconds.count();
 
 
-	//cudaStatus = cudaMalloc((void**)&particles_GPU, NUM_PARTICLES * sizeof(Particle));
-	//cudaStatus = cudaMallocHost((void**)&particles_GPU, NUM_PARTICLES * sizeof(Particle));
-	cudaStatus = cudaMallocManaged(&particles_GPU, NUM_PARTICLES * sizeof(Particle));
 
 	cudaStatus = cudaMemcpy(particles_GPU, particles, NUM_PARTICLES * sizeof(Particle), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
@@ -80,13 +76,7 @@ int main()
 
 		cudaDeviceSynchronize();
 
-		//work with data here
-		Particle temp  = particles_GPU[1];
-		particles[1] = particles[0];
-		particles[0] = temp;
-		temp = particles[1];
-		particles[1] = particles[0];
-		particles[0] = temp;
+
 
 	}
 
@@ -122,15 +112,23 @@ int main()
 
 	printf("Comparing particles...");
 
-	bool result = compareParticles(particles_GPU, particles, NUM_PARTICLES);
+	Particle *gpuCopy = (Particle*) malloc(NUM_PARTICLES * sizeof(Particle));
+	cudaMemcpy(gpuCopy, particles_GPU, NUM_PARTICLES * sizeof(Particle), cudaMemcpyDeviceToHost);
+	Particle *cpuCopy = (Particle*)malloc(NUM_PARTICLES * sizeof(Particle));
+	cudaMemcpy(cpuCopy, particles, NUM_PARTICLES * sizeof(Particle), cudaMemcpyDeviceToHost);
+
+	
+	bool result = compareParticles(gpuCopy, cpuCopy, NUM_PARTICLES);
 	if (result == true) {
 		printf(" Correct!\n");
 	}
 	else {
 		printf(" Not the same...\n");
 	}
+	
 
 	cudaFree(particles_GPU);
+	cudaFree(particles);
 
 
 	return 0;
